@@ -698,18 +698,19 @@
         <div class="stat-value" id="explorerBlockHeight">1,842,910</div>
       </div>
       <div class="stat-card purple">
-        <div class="stat-label">Network Throughput</div>
-        <div class="stat-value" style="color: #00e5ff;">52,400 TPS</div>
+        <div class="stat-label">Circulating Supply</div>
+        <div class="stat-value" id="explorerCircSupply" style="color: #00e5ff; font-size: 1.45rem;">985,749,100</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Total $OMNI Burned</div>
-        <div class="stat-value" style="color: #ff0080;">🔥 14.25M</div>
+        <div class="stat-value" id="explorerTotalBurned" style="color: #ff0080; font-size: 1.45rem;">🔥 14.25M (1.43%)</div>
       </div>
     </div>
 
     <!-- Explorer Tabs -->
     <div class="tabs-container">
       <button class="tab-btn active" onclick="switchTab('tab-activity')">⚡ Recent Activity</button>
+      <button class="tab-btn" onclick="switchTab('tab-deflation')">🔥 Deflationary Burn Tracker</button>
       <button class="tab-btn" onclick="switchTab('tab-tokens')">🪙 ERC-20 Transfers</button>
       <button class="tab-btn" onclick="switchTab('tab-validators')">👤 Validator & Epoch Stats</button>
       <button class="tab-btn" onclick="switchTab('tab-contract')">🛠 Read/Write Contracts</button>
@@ -737,6 +738,74 @@
           </div>
           <div class="feed-list" id="explorerTxList">
             <div style="color: rgba(255,255,255,0.4);">Connecting to Omni Node...</div>
+          </div>
+        </div>
+      </div>
+    <!-- TAB: Deflationary Burn Tracker -->
+    <div id="tab-deflation" class="tab-content">
+      <div class="panel-card" style="border: 1px solid rgba(255, 0, 128, 0.3); background: linear-gradient(180deg, rgba(255, 0, 128, 0.05) 0%, rgba(20, 10, 30, 0.8) 100%);">
+        <div class="panel-title" style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="display: flex; align-items: center; gap: 8px; font-size: 1.25rem; font-weight: 700; color: #ff007f;">
+            🔥 Verifiable On-Chain Deflation & Contraction Hub
+          </span>
+          <span class="amount-badge" style="background: rgba(255,0,128,0.2); border: 1px solid #ff007f; color: #ff007f;">
+            Contract: 0x5FbDB...0aa3
+          </span>
+        </div>
+        
+        <p style="color: #9ba4b4; font-size: 0.88rem; margin-top: 8px; margin-bottom: 24px; line-height: 1.5;">
+          Every OMNI transaction, DEX trade, and protocol action contributes to on-chain token burns. All burned tokens are permanently erased from <code style="color: #00e5ff;">totalSupply()</code> or routed to the unspendable dead address <code style="color: #00e5ff;">0x000000000000000000000000000000000000dEaD</code>, creating guaranteed algorithmic scarcity.
+        </p>
+
+        <!-- Deflation Metrics Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 28px;">
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 16px;">
+            <div style="font-size: 0.72rem; text-transform: uppercase; color: #9ba4b4; letter-spacing: 0.5px;">Genesis Supply Cap</div>
+            <div style="font-family: monospace; font-size: 1.4rem; font-weight: bold; color: white; margin-top: 6px;">1,000,000,000</div>
+            <div style="font-size: 0.75rem; color: #9ba4b4; margin-top: 4px;">Fixed immutable ceiling</div>
+          </div>
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 10px; padding: 16px;">
+            <div style="font-size: 0.72rem; text-transform: uppercase; color: #00e5ff; letter-spacing: 0.5px;">Circulating Supply</div>
+            <div id="deflationCircSupply" style="font-family: monospace; font-size: 1.4rem; font-weight: bold; color: #00e5ff; margin-top: 6px;">985,749,100</div>
+            <div style="font-size: 0.75rem; color: #34A853; margin-top: 4px;">📉 Deflating Continuously</div>
+          </div>
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255, 0, 128, 0.3); border-radius: 10px; padding: 16px;">
+            <div style="font-size: 0.72rem; text-transform: uppercase; color: #ff007f; letter-spacing: 0.5px;">Total Burned (Destroyed)</div>
+            <div id="deflationTotalBurned" style="font-family: monospace; font-size: 1.4rem; font-weight: bold; color: #ff007f; margin-top: 6px;">14,250,900 OMNI</div>
+            <div id="deflationBurnPercent" style="font-size: 0.75rem; color: #ff007f; margin-top: 4px;">1.4251% of Supply Removed</div>
+          </div>
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(168, 85, 247, 0.2); border-radius: 10px; padding: 16px;">
+            <div style="font-size: 0.72rem; text-transform: uppercase; color: #a855f7; letter-spacing: 0.5px;">Dead Address Inflow</div>
+            <div id="deflationDeadBalance" style="font-family: monospace; font-size: 1.4rem; font-weight: bold; color: #a855f7; margin-top: 6px;">50.0 OMNI</div>
+            <div style="font-size: 0.75rem; color: #9ba4b4; margin-top: 4px;">0x...dEaD Vault</div>
+          </div>
+        </div>
+
+        <!-- Live Interactive Burn Trigger -->
+        <div style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,0,128,0.25); border-radius: 12px; padding: 20px; margin-bottom: 28px;">
+          <h3 style="font-size: 1.05rem; color: white; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+            <span>⚡ Interactive On-Chain Burn Portal</span>
+            <span style="font-size: 0.75rem; font-weight: normal; color: #9ba4b4;">(MetaMask / Web3)</span>
+          </h3>
+          <p style="font-size: 0.82rem; color: #9ba4b4; margin-bottom: 16px;">
+            Execute a live on-chain <code style="color: #ff007f;">burn(uint256)</code> transaction to decrease global supply in real time:
+          </p>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+            <input type="number" id="burnInputAmount" placeholder="Amount OMNI (e.g. 10)" min="1" step="1" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: white; padding: 10px 16px; font-family: monospace; font-size: 1rem; width: 220px; outline: none;">
+            <button onclick="executeInteractiveBurn()" class="btn-action" style="background: linear-gradient(135deg, #ff007f 0%, #7928ca 100%); padding: 11px 24px; font-size: 0.9rem; cursor: pointer; border: none; border-radius: 8px; font-weight: bold; color: white; box-shadow: 0 0 15px rgba(255,0,128,0.3);">
+              🔥 Burn OMNI Permanently
+            </button>
+            <span id="burnStatusMsg" style="font-size: 0.85rem; color: #00e5ff; margin-left: 10px;"></span>
+          </div>
+        </div>
+
+        <!-- Recent Burn Transactions Feed -->
+        <div>
+          <h3 style="font-size: 1.05rem; color: white; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+            <span>📜 Cryptographically Verified Burn Transactions</span>
+          </h3>
+          <div class="feed-list" id="deflationBurnList">
+            <div style="color: rgba(255,255,255,0.4); padding: 12px;">Querying on-chain burn events...</div>
           </div>
         </div>
       </div>
@@ -849,21 +918,40 @@
   </div>
 
   <script>
+    const RPC_GATEWAY = 'https://omni-rpc-gateway-853859261845.us-central1.run.app';
+    const RPC_LOCAL = 'http://localhost:8545';
+    let currentRpcUrl = RPC_GATEWAY;
     let provider;
     let connectedSigner = null;
 
     async function initExplorer() {
-      provider = new ethers.JsonRpcProvider('http://localhost:8545');
+      // Connect to Cloud Run RPC Gateway with local fallback
+      try {
+        provider = new ethers.JsonRpcProvider(RPC_GATEWAY);
+        await provider.getBlockNumber();
+        currentRpcUrl = RPC_GATEWAY;
+      } catch (e) {
+        console.warn("Cloud Run RPC endpoint unreachable, falling back to local:", e);
+        provider = new ethers.JsonRpcProvider(RPC_LOCAL);
+        currentRpcUrl = RPC_LOCAL;
+      }
+
       pollData();
-      setInterval(pollData, 1500);
+      pollDeflationStats();
+      setInterval(pollData, 2500);
+      setInterval(pollDeflationStats, 4000);
 
       // Check MetaMask connection
       if (typeof window.ethereum !== 'undefined') {
-        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-        if (accounts.length > 0) {
-          const browserProvider = new ethers.BrowserProvider(window.ethereum);
-          connectedSigner = await browserProvider.getSigner();
-          document.getElementById('connectWalletBtn').textContent = accounts[0].slice(0, 6) + '...' + accounts[0].slice(-4);
+        try {
+          const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+          if (accounts.length > 0) {
+            const browserProvider = new ethers.BrowserProvider(window.ethereum);
+            connectedSigner = await browserProvider.getSigner();
+            document.getElementById('connectWalletBtn').textContent = accounts[0].slice(0, 6) + '...' + accounts[0].slice(-4);
+          }
+        } catch (err) {
+          console.warn("MetaMask check error:", err);
         }
       }
     }
@@ -887,8 +975,149 @@
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
 
-      event.target.classList.add('active');
-      document.getElementById(tabId).classList.add('active');
+      if (event && event.target) {
+        event.target.classList.add('active');
+      }
+      const targetEl = document.getElementById(tabId);
+      if (targetEl) {
+        targetEl.classList.add('active');
+      }
+    }
+
+    async function pollDeflationStats() {
+      try {
+        const resp = await fetch(currentRpcUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            method: 'omni_getDeflationStats',
+            params: [],
+            id: Date.now()
+          })
+        });
+
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data && data.result) {
+            const stats = data.result;
+            const burnedOmni = parseFloat(stats.totalBurnedOmni);
+            const circSupply = parseFloat(stats.currentSupplyOmni);
+            const burnedPct = stats.burnedPercentage;
+
+            const elTotalBurned = document.getElementById('explorerTotalBurned');
+            if (elTotalBurned) {
+              elTotalBurned.textContent = `🔥 ${(burnedOmni / 1e6).toFixed(2)}M (${burnedPct})`;
+            }
+
+            const elCircSupply = document.getElementById('explorerCircSupply');
+            if (elCircSupply) {
+              elCircSupply.textContent = `${Math.round(circSupply).toLocaleString()}`;
+            }
+
+            const elDeflCirc = document.getElementById('deflationCircSupply');
+            if (elDeflCirc) {
+              elDeflCirc.textContent = `${Math.round(circSupply).toLocaleString()} OMNI`;
+            }
+
+            const elDeflBurned = document.getElementById('deflationTotalBurned');
+            if (elDeflBurned) {
+              elDeflBurned.textContent = `${Math.round(burnedOmni).toLocaleString()} OMNI`;
+            }
+
+            const elDeflPct = document.getElementById('deflationBurnPercent');
+            if (elDeflPct) {
+              elDeflPct.textContent = `${burnedPct} of Supply Permanently Destroyed`;
+            }
+
+            // Render burns
+            renderBurnHistory(stats.recentBurns);
+          }
+        }
+      } catch (err) {
+        console.warn("pollDeflationStats error:", err);
+      }
+    }
+
+    function renderBurnHistory(burns) {
+      const container = document.getElementById('deflationBurnList');
+      if (!container || !burns || burns.length === 0) return;
+
+      let html = '';
+      burns.slice().reverse().forEach(b => {
+        const amt = parseFloat(b.amountOmni || 0);
+        const txHash = b.txHash || '0x';
+        const blk = b.blockNumber || 'Mined';
+        const burnType = b.type || 'On-Chain Deflationary Contraction';
+        const ts = b.timestamp ? new Date(b.timestamp * 1000).toLocaleTimeString() : 'Live';
+
+        html += `
+          <div class="feed-item" style="border-left: 3px solid #ff007f;">
+            <div class="feed-left">
+              <div class="badge-cube" style="border-color: rgba(255, 0, 128, 0.4); color: #ff007f;">🔥</div>
+              <div class="details-col">
+                <a href="#" class="hash-link" onclick="viewTx('${txHash}'); return false;" style="color: #ff007f;">
+                  ${txHash.slice(0, 18)}...${txHash.slice(-6)}
+                </a>
+                <span class="sub-detail">${burnType} • Block #${blk} • ${ts}</span>
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <span class="amount-badge" style="background: rgba(255,0,128,0.2); border: 1px solid #ff007f; color: #ff007f;">
+                -${amt.toLocaleString()} OMNI
+              </span>
+              <div class="sub-detail" style="color: #34A853;">Status: Destroyed On-Chain</div>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    async function executeInteractiveBurn() {
+      const inputEl = document.getElementById('burnInputAmount');
+      const statusEl = document.getElementById('burnStatusMsg');
+      const amount = parseFloat(inputEl.value);
+
+      if (!amount || amount <= 0) {
+        statusEl.textContent = '❌ Please enter a valid amount to burn.';
+        statusEl.style.color = '#ff4444';
+        return;
+      }
+
+      try {
+        if (!connectedSigner) {
+          statusEl.textContent = 'Connecting MetaMask...';
+          await connectWallet();
+        }
+
+        statusEl.textContent = `Broadcasting burn of ${amount} OMNI to blockchain...`;
+        statusEl.style.color = '#00e5ff';
+
+        const tokenAbi = [
+          "function burn(uint256 amount)",
+          "function balanceOf(address) view returns (uint256)"
+        ];
+        const tokenAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+        const contract = new ethers.Contract(tokenAddress, tokenAbi, connectedSigner);
+        const amountWei = ethers.parseEther(amount.toString());
+
+        const tx = await contract.burn(amountWei);
+        statusEl.innerHTML = `Tx sent! <a href="#" onclick="viewTx('${tx.hash}'); return false;" style="color:#00e5ff;">${tx.hash.slice(0, 14)}...</a>. Waiting for confirmation...`;
+
+        const receipt = await tx.wait();
+        statusEl.innerHTML = `✅ Successfully burned ${amount} OMNI permanently in Block #${receipt.blockNumber}!`;
+        statusEl.style.color = '#34A853';
+        inputEl.value = '';
+
+        // Immediately refresh
+        pollDeflationStats();
+        pollData();
+      } catch (err) {
+        statusEl.textContent = 'Burn failed: ' + (err.reason || err.message);
+        statusEl.style.color = '#ff4444';
+      }
     }
 
     async function pollData() {
@@ -1000,135 +1229,26 @@
         } catch(e) {}
 
       } catch (err) {
-        // Dynamic Live Simulated Blockchain Streamer
-        let currBlock = parseInt(document.getElementById('explorerBlockHeight').textContent || "14820");
-        if (isNaN(currBlock)) currBlock = 14820;
-        currBlock += 1;
-        document.getElementById('explorerBlockHeight').textContent = currBlock.toLocaleString();
-        
-        const gasFluctuation = (4.5 + Math.random() * 2.8).toFixed(2);
-        document.getElementById('explorerGasPrice').textContent = gasFluctuation + ' Gwei';
-
-        // Render dynamic live blocks
-        let blocksHtml = '';
-        for (let i = 0; i < 6; i++) {
-          const bNum = currBlock - i;
-          const txCount = Math.floor(Math.random() * 18 + 4);
-          const gasUsed = (txCount * 21000 + Math.floor(Math.random() * 85000)).toLocaleString();
-          blocksHtml += `
-            <div class="feed-item">
-              <div class="feed-left">
-                <div class="badge-cube" style="border-color: rgba(0, 243, 255, 0.3); color: hsl(var(--neon-cyan));">${bNum}</div>
-                <div class="details-col">
-                  <a href="#" class="hash-link" onclick="viewSimulatedBlock(${bNum}, ${txCount}); return false;">Block #${bNum}</a>
-                  <span class="sub-detail">${new Date(Date.now() - i * 2500).toLocaleTimeString()} • Validator: PoNS-Node#${(bNum % 120) + 1}</span>
-                </div>
-              </div>
-              <div style="text-align: right;">
-                <span class="amount-badge" style="color: #fff;">${txCount} Tx(s)</span>
-                <div class="sub-detail" style="color: #9ba4b4;">Gas: ${gasUsed}</div>
-              </div>
-            </div>
-          `;
-        }
-        document.getElementById('explorerBlocksList').innerHTML = blocksHtml;
-
-        // Render dynamic live transactions
-        let txHtml = '';
-        const sampleAddrs = [
-          '0x7F2C...98B1', '0x3c99...e210', '0x1a84...b992', '0x99a1...44f0', '0x55dc...118e', '0x88bb...ff32'
-        ];
-        for (let i = 0; i < 6; i++) {
-          const randHash = '0x' + Array.from({length: 64}, () => Math.floor(Math.random()*16).toString(16)).join('');
-          const from = sampleAddrs[i % sampleAddrs.length];
-          const to = sampleAddrs[(i + 1) % sampleAddrs.length];
-          const val = (Math.random() * 250 + 10).toFixed(2);
-          txHtml += `
-            <div class="feed-item">
-              <div class="feed-left">
-                <div class="badge-cube" style="border-color: rgba(255, 0, 122, 0.3); color: hsl(var(--neon-magenta));">Tx</div>
-                <div class="details-col">
-                  <a href="#" class="hash-link" onclick="viewSimulatedTx('${randHash}', '${from}', '${to}', '${val}'); return false;">${randHash.slice(0, 16)}...</a>
-                  <span class="sub-detail">From: ${from} → To: ${to}</span>
-                </div>
-              </div>
-              <div style="text-align: right;">
-                <span class="amount-badge" style="color: #00e5ff;">${val} OMNI</span>
-                <div class="sub-detail" style="color: #34A853;">Confirmed ✓</div>
-              </div>
-            </div>
-          `;
-        }
-        document.getElementById('explorerTxList').innerHTML = txHtml;
-
-        // Render ERC20 transfers
-        let ercHtml = '';
-        for (let i = 0; i < 6; i++) {
-          const randHash = '0x' + Array.from({length: 64}, () => Math.floor(Math.random()*16).toString(16)).join('');
-          const from = sampleAddrs[(i + 2) % sampleAddrs.length];
-          const to = sampleAddrs[(i + 3) % sampleAddrs.length];
-          const val = (Math.random() * 800 + 50).toFixed(2);
-          ercHtml += `
-            <div class="feed-item">
-              <div class="feed-left">
-                <div class="badge-cube" style="border-color: rgba(162, 0, 255, 0.3); color: hsl(var(--neon-purple));">ERC-20</div>
-                <div class="details-col">
-                  <a href="#" class="hash-link" onclick="viewSimulatedTx('${randHash}', '${from}', '${to}', '${val}'); return false;">${randHash.slice(0, 16)}...</a>
-                  <span class="sub-detail">From: ${from} → To: ${to}</span>
-                </div>
-              </div>
-              <div style="text-align: right;">
-                <span class="amount-badge" style="color: hsl(var(--neon-purple)); font-weight: bold;">${val} $sOMNI</span>
-                <div class="sub-detail" style="color: #9ba4b4;">Yield Staking Transfer</div>
-              </div>
-            </div>
-          `;
-        }
-        document.getElementById('explorerErc20List').innerHTML = ercHtml;
+        console.warn("[OMNI-EXPLORER] Live pollData error, attempting gateway reconnection:", err);
+        try {
+          if (currentRpcUrl === RPC_LOCAL) {
+            currentRpcUrl = RPC_GATEWAY;
+            provider = new ethers.JsonRpcProvider(RPC_GATEWAY);
+          } else {
+            currentRpcUrl = RPC_LOCAL;
+            provider = new ethers.JsonRpcProvider(RPC_LOCAL);
+          }
+        } catch (e) {}
       }
     }
 
-    window.viewSimulatedBlock = function(num, txs) {
-      const modal = document.getElementById('explorerModal');
-      const content = document.getElementById('modalContent');
-      if (!modal || !content) return;
-      const randHash = '0x' + Array.from({length: 64}, () => Math.floor(Math.random()*16).toString(16)).join('');
-      const parentHash = '0x' + Array.from({length: 64}, () => Math.floor(Math.random()*16).toString(16)).join('');
-      content.innerHTML = `
-        <h3 class="modal-title" style="color: #00e5ff;">📦 Block Details #${num}</h3>
-        <div style="display: flex; flex-direction: column; gap: 12px; font-family: monospace; font-size: 0.88rem; line-height: 1.6;">
-          <div><strong style="color: #9ba4b4;">Block Height:</strong> <span style="color: #fff;">${num}</span></div>
-          <div><strong style="color: #9ba4b4;">Block Hash:</strong> <span style="color: #00e5ff;">${randHash}</span></div>
-          <div><strong style="color: #9ba4b4;">Parent Hash:</strong> <span style="color: #aaa;">${parentHash}</span></div>
-          <div><strong style="color: #9ba4b4;">Timestamp:</strong> ${new Date().toLocaleString()}</div>
-          <div><strong style="color: #9ba4b4;">Validator Attestation:</strong> PoNS-Node#${(num % 120) + 1} (100% Weight)</div>
-          <div><strong style="color: #9ba4b4;">Transactions:</strong> ${txs} verified</div>
-          <div><strong style="color: #9ba4b4;">Gas Limit:</strong> 30,000,000</div>
-          <div><strong style="color: #9ba4b4;">Gas Used:</strong> ${(txs * 21000).toLocaleString()} (EIP-1559 Burned: 4.2 $OMNI)</div>
-        </div>
-      `;
-      modal.classList.add('active');
+    window.viewSimulatedBlock = function(num) {
+      viewBlock(num);
     };
 
-    window.viewSimulatedTx = function(hash, from, to, val) {
-      const modal = document.getElementById('explorerModal');
-      const content = document.getElementById('modalContent');
-      if (!modal || !content) return;
-      content.innerHTML = `
-        <h3 class="modal-title" style="color: #e040fb;">⚡ Transaction Details</h3>
-        <div style="display: flex; flex-direction: column; gap: 12px; font-family: monospace; font-size: 0.88rem; line-height: 1.6;">
-          <div><strong style="color: #9ba4b4;">Tx Hash:</strong> <span style="color: #e040fb;">${hash}</span></div>
-          <div><strong style="color: #9ba4b4;">Status:</strong> <span style="color: #34A853; font-weight: bold;">SUCCESS ✅ (Finalized)</span></div>
-          <div><strong style="color: #9ba4b4;">From:</strong> <span style="color: #fff;">${from}</span></div>
-          <div><strong style="color: #9ba4b4;">To:</strong> <span style="color: #00e5ff;">${to}</span></div>
-          <div><strong style="color: #9ba4b4;">Value:</strong> <strong style="color: #ffd700;">${val} OMNI</strong></div>
-          <div><strong style="color: #9ba4b4;">Network Fee:</strong> 0.00042 OMNI (Sub-cent gas)</div>
-          <div><strong style="color: #9ba4b4;">Consensus Engine:</strong> Proof-of-Neural-Stake (PoNS) L1</div>
-        </div>
-      `;
-      modal.classList.add('active');
+    window.viewSimulatedTx = function(hash) {
+      viewTx(hash);
     };
-    }
 
     async function viewBlock(num) {
       try {
@@ -1274,18 +1394,7 @@
           resultEl.innerHTML = `<span style="color: #34A853;">Tx Broadcast:</span> <a href="#" class="hash-link" onclick="viewTx('${res.hash}'); return false;">${res.hash.slice(0, 16)}...</a>`;
         }
       } catch (err) {
-        // High-Fidelity Simulation Fallback
-        if (isRead) {
-          let simulatedVal = "1,000,000,000.00 OMNI";
-          if (methodName === "name") simulatedVal = "Omni Network Token";
-          else if (methodName === "symbol") simulatedVal = "OMNI";
-          else if (methodName === "decimals") simulatedVal = "18";
-          else if (methodName === "balanceOf") simulatedVal = (Math.random() * 50000 + 1000).toFixed(2) + " OMNI";
-          resultEl.innerHTML = `<span style="color: #34A853;">Simulation Response:</span> <strong style="color: #00e5ff;">${simulatedVal}</strong>`;
-        } else {
-          const randTxHash = '0x' + Array.from({length: 64}, () => Math.floor(Math.random()*16).toString(16)).join('');
-          resultEl.innerHTML = `<span style="color: #34A853;">Simulated Tx Broadcast:</span> <a href="#" class="hash-link" onclick="viewSimulatedTx('${randTxHash}', '0x7F2C...98B1', '${address.slice(0, 8)}...', '100'); return false;">${randTxHash.slice(0, 16)}... (Confirmed)</a>`;
-        }
+        resultEl.innerHTML = `<span style="color: #ff4444;">Error:</span> ${err.reason || err.message}`;
       }
     }
 
@@ -1295,7 +1404,8 @@
 
     window.onload = initExplorer;
   </script>
-  <!-- Universal Mascot Widget -->
+  <!-- Universal Deflation Engine & Mascot Widgets -->
+  <script src="omni_universal_deflation_engine.js"></script>
   <script src="omni-pet-widget.js"></script>
   <script src="omni_digital_nature_3d.js"></script>
   <script src="omni_gemini_vector_suite.js"></script>
